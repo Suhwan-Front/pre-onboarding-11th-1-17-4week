@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
-import React, { useContext, useState, useEffect } from 'react'
+import React, { useContext, useState, useEffect, useRef } from 'react'
 import {
   InputBoxWrapper,
   InputBoxInput,
@@ -26,6 +26,8 @@ const InputBox: React.FC = () => {
   const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(
     null,
   )
+  const [showRelatedSearches, setShowRelatedSearches] = useState<boolean>(false)
+  const relatedSearchListRef = useRef<HTMLUListElement | null>(null)
 
   useEffect(() => {
     setRelatedSearches(healthList.slice(0, MAX_RELATED_SEARCHES))
@@ -39,7 +41,6 @@ const InputBox: React.FC = () => {
     const newTypingTimeout = setTimeout(() => {
       setSearchQueryLocal(searchQuery)
 
-      // 로컬 스토리지에서 캐싱된 데이터를 가져옴
       const cachedDataJSON = localStorage.getItem('cachedData')
       if (cachedDataJSON) {
         const parsedData = JSON.parse(cachedDataJSON)
@@ -59,6 +60,22 @@ const InputBox: React.FC = () => {
 
     setTypingTimeout(newTypingTimeout)
   }, [searchQuery, setSearchQuery, updateHealthList])
+
+  const handleInputBoxKeyDown = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault()
+      setShowRelatedSearches(true)
+
+      const firstListItem = relatedSearchListRef.current?.querySelector(
+        'li[tabIndex="0"]',
+      ) as HTMLLIElement | null
+      if (firstListItem) {
+        firstListItem.focus()
+      }
+    }
+  }
 
   const handleInputBoxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target
@@ -82,6 +99,19 @@ const InputBox: React.FC = () => {
       window.location.href = `https://clinicaltrialskorea.com/studies?conditions=${searchQuery}`
     }
     setSearchQueryLocal('')
+  }
+
+  const handleRelatedSearchesClick = (event: React.MouseEvent<HTMLElement>) => {
+    const selectedSickName = (event.target as HTMLElement).textContent
+    if (selectedSickName) {
+      setSearchQueryLocal(selectedSickName)
+      setInputFocused(true)
+      setShowRelatedSearches(false)
+      const inputBox = document.querySelector('input[type="text"]')
+      if (inputBox) {
+        ;(inputBox as HTMLInputElement).focus()
+      }
+    }
   }
 
   const renderRecentSearches = () => {
@@ -115,11 +145,15 @@ const InputBox: React.FC = () => {
     }
 
     return (
-      <RelatedSearchesWrapper>
+      <RelatedSearchesWrapper onClick={handleRelatedSearchesClick}>
         <RelatedListDiv>추천 검색어</RelatedListDiv>
         <RelatedListUl>
           {relatedSearches.map((sick) => (
-            <RelatedSearchItem key={sick.sickCd}>
+            <RelatedSearchItem
+              key={sick.sickCd}
+              tabIndex={0}
+              onClick={handleRelatedSearchesClick}
+            >
               {sick.sickNm}
             </RelatedSearchItem>
           ))}
@@ -140,12 +174,18 @@ const InputBox: React.FC = () => {
           onBlur={handleInputBoxBlur}
           onFocus={() => {
             setInputFocused(true)
+            setShowRelatedSearches(true)
           }}
+          onKeyPress={handleInputBoxKeyDown}
         />
         <InputBoxButton onClick={handleApiButtonClick}>검색</InputBoxButton>
       </InputBoxWrapper>
-      {renderRecentSearches()}
-      {renderRelatedSearches()}
+      {showRelatedSearches && (
+        <>
+          {renderRecentSearches()}
+          {renderRelatedSearches()}
+        </>
+      )}
     </>
   )
 }

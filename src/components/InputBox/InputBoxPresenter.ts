@@ -32,7 +32,7 @@ const InputBoxInput = styled.input`
 
 const InputBoxButton = styled.button`
   height: 1.7rem;
-  width: 1.7rem;
+  width: 3rem;
   margin: 0 0.625rem;
   border: 0;
   border-radius: 0.5rem;
