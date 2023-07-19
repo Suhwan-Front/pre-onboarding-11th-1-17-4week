@@ -9,11 +9,15 @@ export interface HealthData {
 export interface HealthListContextProps {
   healthList: HealthData[]
   setSearchQuery: Dispatch<SetStateAction<string>>
+  updateHealthList: (data: HealthData[]) => void
 }
 
 export const initialHealthListContext: HealthListContextProps = {
   healthList: [],
   setSearchQuery: () => {},
+  updateHealthList: function (data: HealthData[]): void {
+    throw new Error('Function not implemented.')
+  },
 }
 
 export interface ListProviderProps {
