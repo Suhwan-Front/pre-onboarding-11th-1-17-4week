@@ -1,4 +1,5 @@
-import { type ReactNode } from 'react'
+/* eslint-disable @typescript-eslint/no-empty-function */
+import { type Dispatch, type SetStateAction, type ReactNode } from 'react'
 
 export interface HealthData {
   sickCd: string
@@ -7,10 +8,12 @@ export interface HealthData {
 
 export interface HealthListContextProps {
   healthList: HealthData[]
+  setSearchQuery: Dispatch<SetStateAction<string>>
 }
 
 export const initialHealthListContext: HealthListContextProps = {
   healthList: [],
+  setSearchQuery: () => {},
 }
 
 export interface ListProviderProps {

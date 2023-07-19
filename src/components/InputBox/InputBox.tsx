@@ -1,3 +1,5 @@
+// InputBox.tsx
+
 import React, { useContext, useState, useEffect } from 'react'
 import { InputBoxWrapper } from './InputBoxPresenter'
 import { HealthListContext } from 'contexts/HealthListContext'
@@ -8,24 +10,23 @@ import {
 } from 'components/constants/const'
 
 const InputBox: React.FC = () => {
-  const { healthList } = useContext(HealthListContext)
-  const [searchQuery, setSearchQuery] = useState<string>('')
+  const { healthList, setSearchQuery } = useContext(HealthListContext)
+  const [searchQuery, setSearchQueryLocal] = useState<string>('')
   const [relatedSearches, setRelatedSearches] = useState<HealthData[]>([])
   const [recentSearches, setRecentSearches] = useState<string[]>([])
   const [isInputFocused, setInputFocused] = useState<boolean>(false)
 
   useEffect(() => {
-    // Use cached data on initial render
     setRelatedSearches(healthList.slice(0, MAX_RELATED_SEARCHES))
   }, [healthList])
 
+  useEffect(() => {
+    setSearchQuery(searchQuery)
+  }, [searchQuery, setSearchQuery])
+
   const handleInputBoxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target
-    setSearchQuery(value)
-    const filteredData = healthList.filter((sick) =>
-      sick.sickNm.includes(value),
-    )
-    setRelatedSearches(filteredData.slice(0, MAX_RELATED_SEARCHES))
+    setSearchQueryLocal(value)
   }
 
   const handleInputBoxClick = () => {
@@ -41,7 +42,7 @@ const InputBox: React.FC = () => {
       searchQuery,
       ...prevSearches.slice(0, MAX_RECENT_SEARCHES),
     ])
-    setSearchQuery('')
+    setSearchQueryLocal('')
   }
 
   const renderRecentSearches = () => {
