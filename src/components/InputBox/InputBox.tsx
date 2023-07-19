@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import { InputBoxWrapper } from './InputBoxPresenter'
 import { HealthListContext } from 'contexts/HealthListContext'
 import { type HealthData } from 'types/types'
@@ -12,6 +12,12 @@ const InputBox: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [relatedSearches, setRelatedSearches] = useState<HealthData[]>([])
   const [recentSearches, setRecentSearches] = useState<string[]>([])
+  const [isInputFocused, setInputFocused] = useState<boolean>(false)
+
+  useEffect(() => {
+    // Use cached data on initial render
+    setRelatedSearches(healthList.slice(0, MAX_RELATED_SEARCHES))
+  }, [healthList])
 
   const handleInputBoxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target
@@ -23,15 +29,51 @@ const InputBox: React.FC = () => {
   }
 
   const handleInputBoxClick = () => {
+    setInputFocused(true)
+  }
+
+  const handleInputBoxBlur = () => {
+    setInputFocused(false)
+  }
+
+  const handleApiButtonClick = () => {
     setRecentSearches((prevSearches) => [
       searchQuery,
       ...prevSearches.slice(0, MAX_RECENT_SEARCHES),
     ])
+    setSearchQuery('')
   }
 
-  const handleInputBoxBlur = () => {
-    setRecentSearches([])
-    setRelatedSearches([])
+  const renderRecentSearches = () => {
+    if (!isInputFocused || recentSearches.length === 0) {
+      return null
+    }
+    return (
+      <>
+        <div>최근 검색어</div>
+        <ul>
+          {recentSearches.map((search, index) => (
+            <li key={index}>{search}</li>
+          ))}
+        </ul>
+      </>
+    )
+  }
+
+  const renderRelatedSearches = () => {
+    if (!isInputFocused || relatedSearches.length === 0) {
+      return null
+    }
+    return (
+      <>
+        <div>추천 검색어</div>
+        <ul>
+          {relatedSearches.map((sick) => (
+            <li key={sick.sickCd}>{sick.sickNm}</li>
+          ))}
+        </ul>
+      </>
+    )
   }
 
   return (
@@ -43,27 +85,13 @@ const InputBox: React.FC = () => {
         placeholder="검색어를 입력하세요"
         onClick={handleInputBoxClick}
         onBlur={handleInputBoxBlur}
+        onFocus={() => {
+          setInputFocused(true)
+        }}
       />
-      <button>검색</button>
-      {relatedSearches.length === 0 ? (
-        <>
-          <div>최근 검색어</div>
-          {recentSearches.length > 0 ? (
-            recentSearches.map((search, index) => <li key={index}>{search}</li>)
-          ) : (
-            <li>검색어 없음</li>
-          )}
-          <div>추천 검색어</div>
-          <li>검색어 없음</li>
-        </>
-      ) : (
-        <>
-          <div>추천 검색어</div>
-          {relatedSearches.map((sick) => (
-            <li key={sick.sickCd}>{sick.sickNm}</li>
-          ))}
-        </>
-      )}
+      <button onClick={handleApiButtonClick}>API 호출</button>
+      {renderRecentSearches()}
+      {renderRelatedSearches()}
     </InputBoxWrapper>
   )
 }

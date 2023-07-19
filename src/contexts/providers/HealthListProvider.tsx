@@ -10,7 +10,9 @@ export const HealthListProvider = ({ children }: ListProviderProps) => {
 
   useEffect(() => {
     const fetchData = async () => {
+      console.info('calling api')
       const data = await getHealthList()
+      console.log(data)
       setHealthList(data)
     }
     fetchData()
