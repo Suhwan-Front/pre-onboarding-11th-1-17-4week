@@ -39,7 +39,6 @@ export const HealthListProvider = ({ children }: ListProviderProps) => {
             cachedSearchQueries.current.push(searchQuery)
             cachedData.current[searchQuery] = filteredData
 
-            // 로컬 스토리지에 캐싱된 데이터를 저장
             localStorage.setItem(
               'cachedData',
               JSON.stringify({

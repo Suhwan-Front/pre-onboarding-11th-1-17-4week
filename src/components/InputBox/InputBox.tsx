@@ -1,6 +1,14 @@
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import React, { useContext, useState, useEffect } from 'react'
-import { InputBoxWrapper } from './InputBoxPresenter'
+import {
+  InputBoxWrapper,
+  InputBoxInput,
+  InputBoxButton,
+  RelatedListDiv,
+  RelatedListUl,
+  RelatedSearchItem,
+  RelatedSearchesWrapper,
+} from './InputBoxPresenter'
 import { HealthListContext } from 'contexts/HealthListContext'
 import { type HealthData } from 'types/types'
 import {
@@ -70,6 +78,9 @@ const InputBox: React.FC = () => {
       searchQuery,
       ...prevSearches.slice(0, MAX_RECENT_SEARCHES),
     ])
+    if (searchQuery === '') {
+      window.location.href = `https://clinicaltrialskorea.com/studies?conditions=${searchQuery}`
+    }
     setSearchQueryLocal('')
   }
 
@@ -77,51 +88,65 @@ const InputBox: React.FC = () => {
     if (!isInputFocused || recentSearches.length === 0) {
       return null
     }
+
     return (
-      <>
-        <div>최근 검색어</div>
-        <ul>
+      <RelatedSearchesWrapper>
+        <RelatedListDiv>최근 검색어</RelatedListDiv>
+        <RelatedListUl>
           {recentSearches.map((search, index) => (
-            <li key={index}>{search}</li>
+            <RelatedSearchItem key={index}>{search}</RelatedSearchItem>
           ))}
-        </ul>
-      </>
+        </RelatedListUl>
+      </RelatedSearchesWrapper>
     )
   }
 
   const renderRelatedSearches = () => {
-    if (!isInputFocused || relatedSearches.length === 0) {
+    if (!isInputFocused) {
       return null
     }
+
+    if (healthList.length === 0) {
+      return (
+        <RelatedSearchesWrapper>
+          <RelatedListDiv>검색어 없음</RelatedListDiv>
+        </RelatedSearchesWrapper>
+      )
+    }
+
     return (
-      <>
-        <div>추천 검색어</div>
-        <ul>
+      <RelatedSearchesWrapper>
+        <RelatedListDiv>추천 검색어</RelatedListDiv>
+        <RelatedListUl>
           {relatedSearches.map((sick) => (
-            <li key={sick.sickCd}>{sick.sickNm}</li>
+            <RelatedSearchItem key={sick.sickCd}>
+              {sick.sickNm}
+            </RelatedSearchItem>
           ))}
-        </ul>
-      </>
+        </RelatedListUl>
+      </RelatedSearchesWrapper>
     )
   }
 
   return (
-    <InputBoxWrapper>
-      <input
-        type="text"
-        value={searchQuery}
-        onChange={handleInputBoxChange}
-        placeholder="검색어를 입력하세요"
-        onClick={handleInputBoxClick}
-        onBlur={handleInputBoxBlur}
-        onFocus={() => {
-          setInputFocused(true)
-        }}
-      />
-      <button onClick={handleApiButtonClick}>API 호출</button>
+    <>
+      <InputBoxWrapper>
+        <InputBoxInput
+          type="text"
+          value={searchQuery}
+          onChange={handleInputBoxChange}
+          placeholder="검색어를 입력하세요"
+          onClick={handleInputBoxClick}
+          onBlur={handleInputBoxBlur}
+          onFocus={() => {
+            setInputFocused(true)
+          }}
+        />
+        <InputBoxButton onClick={handleApiButtonClick}>검색</InputBoxButton>
+      </InputBoxWrapper>
       {renderRecentSearches()}
       {renderRelatedSearches()}
-    </InputBoxWrapper>
+    </>
   )
 }
 

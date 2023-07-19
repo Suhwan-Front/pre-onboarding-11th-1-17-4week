@@ -5,10 +5,12 @@ import { BackGround } from 'components/Header/HeaderPresenter'
 
 const pages = () => {
   return (
-    <BackGround>
-      <Header />
-      <InputBox />
-    </BackGround>
+    <>
+      <BackGround>
+        <Header />
+        <InputBox />
+      </BackGround>
+    </>
   )
 }
 

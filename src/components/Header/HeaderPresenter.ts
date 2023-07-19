@@ -2,6 +2,12 @@ import styled from 'styled-components'
 
 const HeaderWrapper = styled.header`
   display: flex;
+  flex-direction: column;
+  align-items: center;
+`
+
+const HeaderText = styled.h1`
+  margin: 0.25rem;
 `
 
 const BackGround = styled.div`
@@ -9,6 +15,8 @@ const BackGround = styled.div`
   background-color: #cae9ff;
   flex-direction: column;
   align-items: center;
+  width: 100vw;
+  position: relative;
 `
 
-export { HeaderWrapper, BackGround }
+export { HeaderWrapper, HeaderText, BackGround }
