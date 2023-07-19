@@ -1,46 +1,85 @@
-# Getting Started with Create React App
+# 프리온보딩 4주차 과제
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+실행 방법
 
-## Available Scripts
+> npm install
 
-In the project directory, you can run:
+> npm start
 
-### `npm start`
+### 1. 질환명 검색시 API 호출을 통해서 검색어 추천 기능
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+입력마다 API를 호출하는 문제를 어떻게 할까 고민을 하다. 5초 단위로 계산을 생각했습니다.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+```js
+useEffect(() => {
+  if (typingTimeout) {
+    clearTimeout(typingTimeout)
+  }
+  // 500ms 후에 API를 호출하도록 타이머 설정
+  const newTypingTimeout = setTimeout(() => {
+    setSearchQuery(searchQuery)
+  }, 500)
 
-### `npm test`
+  setTypingTimeout(newTypingTimeout)
+}, [searchQuery]) //searchQuery는 Input에 value입니다
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+타이핑마다 불러오는 번거러움은 줄었지만 여전히 많이 불러온다는 단점이 있습니다. **Debounce**와 **Throttle**라는 라이브러리로 호출 횟수를 많이 줄일 수 있다는 걸 검색을 통해 알게되었는데 사용가능 여부를 몰라 사용하진 않았습니다.
 
-### `npm run build`
+### 2. API 호출별로 로컬 캐싱 구현
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+뜻에 대해 고민을 많이 했었습니다. API를 호출한걸 로컬 스토리지에 저장하고 캐쉬 데이터 처럼 반복해서 가져오는걸 막는 역할을 말하지 않을까 생각했습니다.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```js
+useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (searchQuery !== '') {
+          console.info('calling api')
+          // 캐시에 해당 쿼리 결과가 있으면 다시 API를 호출하지 않고 캐시에서 가져옴
+          if (cachedSearchQueries.current.includes(searchQuery)) {
+            setHealthList(cachedData.current[searchQuery])
+          }
+          // -- 중략 -- //
+            // 캐시에 결과 저장
+            cachedSearchQueries.current.push(searchQuery)
+            cachedData.current[searchQuery] = filteredData
+          }
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+> **expire time**을 구상하였으나 타입 스크립트 미숙으로 코드에 적용하지는 못하였습니다. 코드는 아래와 같이 구상하였습니다.
 
-### `npm run eject`
+```js
+const fetchData = async () => {
+      try {
+        if (searchQuery !== '') {
+          const now = Date.now();
+          if (
+            cachedSearchQueries.current.includes(searchQuery) &&
+            now - cachedData.current[searchQuery].timestamp < CACHE_EXPIRATION_TIME // 5 * 60 * 1000
+          ) {
+            // 캐시가 유효한 경우
+            setHealthList(cachedData.current[searchQuery].data);
+          } else {
+            // -- 중략 -- //
+            cachedSearchQueries.current.push(searchQuery);
+            cachedData.current[searchQuery] = {
+              data: filteredData,
+              timestamp: now, // 현재 시간을 캐시 데이터와 함께 저장
+            };
+            localStorage.setItem(
+              'cachedData',
+              JSON.stringify({
+                data: cachedData.current,
+                searchQueries: cachedSearchQueries.current,
+              }),
+            );
+          }
+        }
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### 3. 구현 화면
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+![result](./dist/result.gif)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+아쉽게 키보드만으로 추천 검색어들로 이동 가능하도록 구현은 실패했습니다... 코드를 수정하다 실수한것 같습니다...
