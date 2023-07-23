@@ -10,10 +10,12 @@ import {
   RelatedSearchItem,
 } from './InputBoxPresenter'
 import { SickContext } from 'contexts/SickListContext'
+import useDedounce from 'hooks/useDebounce'
 
 const InputBox: React.FC = () => {
   const { searchSickList, fetchError, fetchSickList } = useContext(SickContext)
   const [inputBoxValue, setInputBoxValue] = useState<string>('')
+  const debounceInputValue = useDedounce(inputBoxValue, 300)
 
   const handleInputBoxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target
@@ -21,13 +23,8 @@ const InputBox: React.FC = () => {
   }
 
   useEffect(() => {
-    const debounceTimer = setTimeout(() => {
-      fetchSickList(inputBoxValue)
-    }, 300)
-    return () => {
-      clearTimeout(debounceTimer)
-    }
-  }, [inputBoxValue])
+    fetchSickList(debounceInputValue)
+  }, [debounceInputValue])
 
   return (
     <>
@@ -37,7 +34,7 @@ const InputBox: React.FC = () => {
       </InputBoxWrapper>
       <RelatedSearchesWrapper>
         <RelatedListUl>
-          {searchSickList.map((sick) => (
+          {searchSickList.slice(0, 5).map((sick) => (
             <RelatedSearchItem key={sick.sickCd}>
               {sick.sickNm}
             </RelatedSearchItem>
