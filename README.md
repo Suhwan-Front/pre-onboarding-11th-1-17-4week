@@ -47,35 +47,33 @@ useEffect(() => {
           }
 ```
 
-> **expire time**을 구상하였으나 타입 스크립트 미숙으로 코드에 적용하지는 못하였습니다. 코드는 아래와 같이 구상하였습니다.
+> **expire time**을 구상하였으나 타입 스크립트 미숙으로 코드에 적용하지는 못하였습니다. 코드는 아래와 같이 구상하였습니다. (**구현 완료**)
 
 ```js
-const fetchData = async () => {
-      try {
-        if (searchQuery !== '') {
-          const now = Date.now();
-          if (
-            cachedSearchQueries.current.includes(searchQuery) &&
-            now - cachedData.current[searchQuery].timestamp < CACHE_EXPIRATION_TIME // 5 * 60 * 1000
-          ) {
-            // 캐시가 유효한 경우
-            setHealthList(cachedData.current[searchQuery].data);
-          } else {
-            // -- 중략 -- //
-            cachedSearchQueries.current.push(searchQuery);
-            cachedData.current[searchQuery] = {
-              data: filteredData,
-              timestamp: now, // 현재 시간을 캐시 데이터와 함께 저장
-            };
-            localStorage.setItem(
-              'cachedData',
-              JSON.stringify({
-                data: cachedData.current,
-                searchQueries: cachedSearchQueries.current,
-              }),
-            );
-          }
+  const fetchSickList = async (value: string) => {
+    try {
+      const now = new Date()
+      if (localStorage.getItem(value) === null) {
+        const newFetchSickList = await getHealthList(value)
+        const setItem = {
+          value,
+          expire: now.getTime() + 300000,
         }
+        localStorage.setItem(value, JSON.stringify(setItem))
+        setSearchSickList([...newFetchSickList])
+      } else {
+        const localFetchSickList = localStorage.getItem(value)
+        const getItem = JSON.parse(localFetchSickList ?? '[]')
+        if (now.getTime() > getItem.expire) {
+          localStorage.removeItem(value)
+        }
+        setSearchSickList([...JSON.parse(localFetchSickList ?? '[]')])
+      }
+    } catch (error) {
+      const err = error as SystemError
+      setFetchError(err.message)
+    }
+  }
 ```
 
 ### 3. 구현 화면

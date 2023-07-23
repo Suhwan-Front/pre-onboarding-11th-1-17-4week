@@ -1,25 +1,35 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { type Dispatch, type SetStateAction, type ReactNode } from 'react'
 
-export interface HealthData {
+export interface SickList {
   sickCd: string
   sickNm: string
 }
 
-export interface HealthListContextProps {
-  healthList: HealthData[]
-  setSearchQuery: Dispatch<SetStateAction<string>>
-  updateHealthList: (data: HealthData[]) => void
+export interface SickListContextProps {
+  searchSickList: SickList[]
+  fetchError: string | null
+  fetchSickList: (value: string) => Promise<void>
 }
 
-export const initialHealthListContext: HealthListContextProps = {
-  healthList: [],
-  setSearchQuery: () => {},
-  updateHealthList: function (data: HealthData[]): void {
-    throw new Error('Function not implemented.')
-  },
+export const initialSickListContext: SickListContextProps = {
+  searchSickList: [],
+  fetchError: null,
+  fetchSickList: async () => {},
 }
 
-export interface ListProviderProps {
+export interface SystemError {
+  code: string
+  message: string
+}
+
+export interface SickListProviderProps {
   children: ReactNode
+}
+
+export interface reducerType {
+  state: string
+  [x: string]: string
+  action: string
+  value: string
 }

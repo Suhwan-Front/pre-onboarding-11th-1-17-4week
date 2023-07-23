@@ -1,6 +1,6 @@
 import React from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { HealthListProvider } from 'contexts/providers/HealthListProvider'
+import { SickAPIProvider } from 'contexts/providers/SickListProvider'
 import GlobalStyle from 'utils/GlobalStyle'
 import Main from './pages/Main'
 
@@ -9,11 +9,11 @@ function App() {
     <>
       <BrowserRouter>
         <GlobalStyle />
-        <HealthListProvider>
+        <SickAPIProvider>
           <Routes>
             <Route path="/" Component={Main} />
           </Routes>
-        </HealthListProvider>
+        </SickAPIProvider>
       </BrowserRouter>
     </>
   )
