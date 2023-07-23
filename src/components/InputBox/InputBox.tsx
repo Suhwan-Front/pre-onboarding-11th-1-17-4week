@@ -5,6 +5,9 @@ import {
   InputBoxWrapper,
   InputBoxInput,
   InputBoxButton,
+  RelatedSearchesWrapper,
+  RelatedListUl,
+  RelatedSearchItem,
 } from './InputBoxPresenter'
 import { SickContext } from 'contexts/SickListContext'
 
@@ -32,11 +35,15 @@ const InputBox: React.FC = () => {
         <InputBoxInput type="text" onChange={handleInputBoxChange} />
         <InputBoxButton>검색</InputBoxButton>
       </InputBoxWrapper>
-      <div>
-        {searchSickList.map((sick) => (
-          <div key={sick.sickCd}>{sick.sickNm}</div>
-        ))}
-      </div>
+      <RelatedSearchesWrapper>
+        <RelatedListUl>
+          {searchSickList.map((sick) => (
+            <RelatedSearchItem key={sick.sickCd}>
+              {sick.sickNm}
+            </RelatedSearchItem>
+          ))}
+        </RelatedListUl>
+      </RelatedSearchesWrapper>
     </>
   )
 }

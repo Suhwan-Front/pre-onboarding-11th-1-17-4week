@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { type Dispatch, type SetStateAction, type ReactNode } from 'react'
+import { type ReactNode } from 'react'
 
 export interface SickList {
   sickCd: string
@@ -32,4 +32,8 @@ export interface reducerType {
   [x: string]: string
   action: string
   value: string
+}
+
+export interface RootState {
+  searchSickList: SickList[]
 }

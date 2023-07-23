@@ -1,8 +1,8 @@
 import { combineReducers, createStore } from 'redux'
-import { queryReducer } from './List'
+import SearchSickListReducer from './SearchSickListReducer'
 
 const rootReducer = combineReducers({
-  queryReducer,
+  SearchSickList: SearchSickListReducer,
 })
 
 export const store = createStore(rootReducer)
